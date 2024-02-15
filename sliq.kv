@@ -1,0 +1,46 @@
+<BoardTile>:
+    
+    Image:
+        source: 'tile.png'
+        keep_ratio: False
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        pos: self.x, self.y
+        size_hint: None, None # if you are setting the size, the hint must be set to None
+        size: 100, 100
+
+
+<Board>:
+    size: 800, 800
+    canvas.before:
+        # Color:
+        #     rgb: (0, 0, 0)
+            
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        
+        
+
+<SliqGame>:
+    board: board
+
+    canvas:
+        Color:
+            rgb: (1, 1, 1)
+
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        
+
+    
+    Label:
+        color: (1 , 0 , 0 , 1)
+        font_size: 70  
+        center_x: root.width / 4 * 3
+        top: root.top - 50
+        text: "Score: "#str(root.player.score)
+    
+    Board:
+        id: board
+        center: self.parent.center
