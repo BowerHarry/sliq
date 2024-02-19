@@ -1,18 +1,23 @@
 <BoardTile>:
+    size: 100, 100
     Image:
         source: root.s
-        keep_ratio: False
-        pos_hint: {'center_x': .5, 'center_y': .5}
-        pos: root.x, root.y
-        size_hint: None, None # if you are setting the size, the hint must be set to None
-        size: 100, 100
+        # keep_ratio: False
+        # pos_hint: {'x': 0.0, 'y': 0.5}
+        # pos: self.x, self.y
+        size_hint_x: None
+        size_hint_y: None
+        size_x: 100
+        size_y:100
+        # size_hint: 0.125, 0.125 # if you are setting the size, the hint must be set to None
+        # size: 100, 100
 
 <TileVerticalEdge>:
     Image:
         source: root.s
         keep_ratio: False
-        pos_hint: {'center_x': .5, 'center_y': .5}
-        pos: root.x, root.y
+        # pos_hint: {'x': 0.0, 'y': 0.5}
+        # pos: root.x, root.y
         size_hint: None, None # if you are setting the size, the hint must be set to None
         size: 20, 100
 
@@ -20,64 +25,41 @@
     Image:
         source: root.s
         keep_ratio: False
-        pos_hint: {'center_x': .5, 'center_y': .5}
-        pos: root.x, root.y
+        # pos_hint: {'x': 0.0, 'y': 0.5}
+        # pos: root.x, root.y
         size_hint: None, None # if you are setting the size, the hint must be set to None
         size: 100, 20
 
 
 <Board>:
-    size: 800, 800
-    canvas.before:
-        # Color:
-        #     rgb: (0, 0, 0)
-            
-        Rectangle:
-            pos: self.pos
-            size: self.size
-        
 
-<Score>:
-    Label:
-        color: (1 , 0 , 0 , 1)
-        font_size: 70  
-        pos: 1000, 1500
-        # pos: root.x, root.y
-        # top: root.top - 50
-        
-        text: "Score: " + str(root.points)
 
 
 <SliqGame>:
     board: board
     score: score
 
-    canvas:
-        Color:
-            rgb: (1, 1, 1)
-
-        Rectangle:
-            pos: self.pos
-            size: self.size
-    
     Button:
         color: (1 , 1 , 1 , 1)
         background_color: (0 , 1 , 0 , 1)
         font_size: 70  
-        center_x: root.width / 2
-        top: root.top - 200
+        center_x: (root.width * 0.5)
+        top: root.height - (0.8 * root.height)
         text: 'Rotate!'
         on_press: root.rotateBorder()
         size: 250, 70
-        # on_release: print("ahhh")
-        # on_state: print("my current state is {}".format(self.state))
 
-    Score:
+    Label:
+        color: (1 , 0 , 0 , 1)
+        font_size: 70  
         id: score
         points: board.score
-        center: self.parent.center
-        pos: self.pos
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.9)
+        size: 250, 70
+        text: "Score: " + str(self.points)
     
     Board:
         id: board
-        center: self.parent.center
+        center_x: (root.width / 2) -450
+        center_y: (root.height / 2) -400

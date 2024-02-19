@@ -9,13 +9,15 @@ from kivy.properties import (
 from kivy.core.window import Window
 from kivy.properties import StringProperty
 from kivy.properties import NumericProperty
+from kivy.core.window import Window
 import random
 import math
-import numpy
 from kivy.uix.behaviors import ButtonBehavior
+from kivy.metrics import dp
 from kivy.properties import BooleanProperty
 
-Window.size = 640, 1200
+Window.size = Window.size
+screenX, screenY = Window.size
 
 class BoardTile(ButtonBehavior, RelativeLayout):
     s=StringProperty()
@@ -34,15 +36,19 @@ class BoardTile(ButtonBehavior, RelativeLayout):
         return super(BoardTile, self).on_touch_down(touch)
 
     def on_touch_up(self, touch):
-        if self.clicked_inside and not self.collide_point(*touch.pos) and not self.v==-1:
+        if self.clicked_inside and not self.v==-1:
+            # print(str(self.x) + ", " + str(self.y))
             releaseX, releaseY = touch.pos
+            print(self.x)
+            print(releaseX)
+            abs_x = self.x + 50
             self.clicked_inside = False
-            # print("Mouse click at ({}, {})".format(self.x, self.y))
-            # print("Mouse click released at ({}, {})".format(releaseX, releaseY))
             if self.board_instance:
-                if (self.x + 10 < releaseX):
+                if (abs_x + 50 < releaseX):
+                    print("right")
                     self.board_instance.moveTile(self.gridX, self.gridY, self.v, "RIGHT")
-                elif (self.x - 10 > releaseX):
+                elif (abs_x - 50 > releaseX):
+                    print("left")
                     self.board_instance.moveTile(self.gridX, self.gridY, self.v, "LEFT")
             
         return super(BoardTile, self).on_touch_up(touch)
@@ -88,9 +94,9 @@ class Border:
             print(i)
 
     def rotate(self):
-        self.grid = numpy.rot90(self.grid, -1)
+        self.grid = list(zip(*self.grid[::-1]))
 
-class Board(Widget):
+class Board(RelativeLayout):
     length = 8+2
     border = Border(length)
     game_instance = ObjectProperty(None)
@@ -101,7 +107,7 @@ class Board(Widget):
         super().__init__(**kwargs)
         for i in range(1,self.length-1):
             for j in range (1,self.length-1):
-                self.add_widget(BoardTile(x=120+(i*100), y=300+(j*100), ids={'x': i, 'y': j, 'value':-1, 'object':'tile'}, s='src/tile.png', v=-1, gridX= i, gridY=j, board_instance=self))
+                self.add_widget(BoardTile(x=(i*100), y=(j*100), ids={'x': i, 'y': j, 'value':-1, 'object':'tile'}, s='src/tile.png', v=-1, gridX= i, gridY=j, board_instance=self))
         self.fillWithStartingGrid()
         print(self.newTile())
         print(self.newTile())
@@ -109,6 +115,9 @@ class Board(Widget):
         print(self.newTile())
         self.drawBorder()
         self.update()
+        for child in self.children:
+            if child.ids.object == 'tile':
+                print("value = " + str(child.ids.value))
 
     def moveTile(self, x, y, value, direction):
         if value != 0:
@@ -191,14 +200,14 @@ class Board(Widget):
                             x = i-1
                         else:
                             x = i
-                        self.add_widget(TileVerticalEdge(x=170+(x*100), y=300+(j*100), ids={'x': i, 'y': j, 'value':self.border.grid[i][j], 'object':'border'}, s=s))
+                        self.add_widget(TileVerticalEdge(x=90+(x*100), y=(j*100), ids={'x': i, 'y': j, 'value':self.border.grid[i][j], 'object':'border'}, s=s))
                     if j == 0 or j == self.length-1:
                         if j == self.length-1:
                             y = j-1
                         else:
                             y = j
                         s='src/' + str(self.border.grid[i][j]) + '-horizontal-edge.png'
-                        self.add_widget(TileHorizontalEdge(x=120+(i*100), y=350+(y*100), ids={'x': i, 'y': j, 'value':self.border.grid[i][j], 'object':'border'}, s=s))
+                        self.add_widget(TileHorizontalEdge(x=(i*100), y=90+(y*100), ids={'x': i, 'y': j, 'value':self.border.grid[i][j], 'object':'border'}, s=s))
 
     
     def randomValue(self):
@@ -262,7 +271,7 @@ class Board(Widget):
         for child in self.children:
             if (child.ids.x) == x and (child.ids.y) == y:
                 self.remove_widget(child)
-                self.add_widget(BoardTile(x=120+(x*100), y=300+(y*100), ids={'x': x, 'y': y, 'value': value, 'object':'tile'}, s=s, v=value, gridX= x, gridY=y, board_instance=self))
+                self.add_widget(BoardTile(x=(x*100), y=(y*100), ids={'x': x, 'y': y, 'value': value, 'object':'tile'}, s=s, v=value, gridX= x, gridY=y, board_instance=self))
 
     def update(self):
         # floor case
@@ -282,6 +291,7 @@ class SliqGame(Widget):
     score = ObjectProperty(None)
 
     def start(self):
+        # self.add_widget(Score(x=100, y=100))
         pass
 
     def rotateBorder(self):
@@ -299,6 +309,6 @@ class SliqApp(App):
     
 
 if __name__ == '__main__':
-    #Window.clearcolor = (.5, .5, .5, 1)
+    Window.clearcolor = (.9, .9, .9, 1)
     SliqApp().run()
     
