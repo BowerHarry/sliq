@@ -1,12 +1,29 @@
 <BoardTile>:
-    
     Image:
-        source: 'tile.png'
+        source: root.s
         keep_ratio: False
         pos_hint: {'center_x': .5, 'center_y': .5}
-        pos: self.x, self.y
+        pos: root.x, root.y
         size_hint: None, None # if you are setting the size, the hint must be set to None
         size: 100, 100
+
+<TileVerticalEdge>:
+    Image:
+        source: root.s
+        keep_ratio: False
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        pos: root.x, root.y
+        size_hint: None, None # if you are setting the size, the hint must be set to None
+        size: 20, 100
+
+<TileHorizontalEdge>:
+    Image:
+        source: root.s
+        keep_ratio: False
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        pos: root.x, root.y
+        size_hint: None, None # if you are setting the size, the hint must be set to None
+        size: 100, 20
 
 
 <Board>:
@@ -19,10 +36,21 @@
             pos: self.pos
             size: self.size
         
+
+<Score>:
+    Label:
+        color: (1 , 0 , 0 , 1)
+        font_size: 70  
+        pos: 1000, 1500
+        # pos: root.x, root.y
+        # top: root.top - 50
         
+        text: "Score: " + str(root.points)
+
 
 <SliqGame>:
     board: board
+    score: score
 
     canvas:
         Color:
@@ -31,15 +59,24 @@
         Rectangle:
             pos: self.pos
             size: self.size
-        
-
     
-    Label:
-        color: (1 , 0 , 0 , 1)
+    Button:
+        color: (1 , 1 , 1 , 1)
+        background_color: (0 , 1 , 0 , 1)
         font_size: 70  
-        center_x: root.width / 4 * 3
-        top: root.top - 50
-        text: "Score: "#str(root.player.score)
+        center_x: root.width / 2
+        top: root.top - 200
+        text: 'Rotate!'
+        on_press: root.rotateBorder()
+        size: 250, 70
+        # on_release: print("ahhh")
+        # on_state: print("my current state is {}".format(self.state))
+
+    Score:
+        id: score
+        points: board.score
+        center: self.parent.center
+        pos: self.pos
     
     Board:
         id: board
