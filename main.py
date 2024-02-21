@@ -4,7 +4,7 @@ from kivy.uix.label import Label
 
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.properties import (
-    NumericProperty, ObjectProperty
+    NumericProperty, ObjectProperty, ReferenceListProperty
 )
 from kivy.core.window import Window
 from kivy.properties import StringProperty
@@ -13,8 +13,11 @@ from kivy.core.window import Window
 import random
 import math
 from kivy.uix.behaviors import ButtonBehavior
-from kivy.metrics import dp
+import functools
 from kivy.properties import BooleanProperty
+from kivy.clock import Clock
+from kivy.animation import Animation
+
 
 Window.size = Window.size
 screenX, screenY = Window.size
@@ -39,17 +42,13 @@ class BoardTile(ButtonBehavior, RelativeLayout):
         if self.clicked_inside and not self.v==-1:
             # print(str(self.x) + ", " + str(self.y))
             releaseX, releaseY = touch.pos
-            print(self.x)
-            print(releaseX)
             abs_x = self.x + 50
             self.clicked_inside = False
             if self.board_instance:
                 if (abs_x + 50 < releaseX):
-                    print("right")
-                    self.board_instance.moveTile(self.gridX, self.gridY, self.v, "RIGHT")
+                    self.board_instance.moveTile(self.gridX, self.gridY, self.v, "RIGHT", self)
                 elif (abs_x - 50 > releaseX):
-                    print("left")
-                    self.board_instance.moveTile(self.gridX, self.gridY, self.v, "LEFT")
+                    self.board_instance.moveTile(self.gridX, self.gridY, self.v, "LEFT", self)
             
         return super(BoardTile, self).on_touch_up(touch)
 
@@ -115,11 +114,23 @@ class Board(RelativeLayout):
         print(self.newTile())
         self.drawBorder()
         self.update()
-        for child in self.children:
-            if child.ids.object == 'tile':
-                print("value = " + str(child.ids.value))
 
-    def moveTile(self, x, y, value, direction):
+    def yield_to_sleep(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            gen = func(*args)
+            def next_step(*_):
+                try:
+                    t = next(gen)  # this executes 'func' before next yield and returns control to you
+                except StopIteration:
+                    pass
+                else:
+                    Clock.schedule_once(next_step, t)  # having control you can resume func execution after some time
+            next_step()
+        return wrapper
+    
+    @yield_to_sleep
+    def moveTile(self, x, y, value, direction, tile):
         if value != 0:
             if direction == "RIGHT":
                 if self.isBorder(x+1, y) != -1 and self.isBorder(x+1, y) == value:
@@ -129,6 +140,11 @@ class Board(RelativeLayout):
                     self.update()
                     print("BORDER TILE!")
                 elif self.isEmpty(x+1, y):
+                    end_x, end_y = self.calcGravity(x+1, y)
+                    y_duration = 0.2 * abs(y-end_y)
+                    anim = Animation(x=end_x*100, y=y*100, duration=0.2) + Animation(x=end_x*100, y=end_y*100, duration = y_duration)
+                    anim.start(tile)
+                    yield y_duration + 0.1
                     print("SOUNDS GOOD")
                     self.add(x, y, -1)
                     self.addWithGravity(x+1, y, value-1)
@@ -143,6 +159,11 @@ class Board(RelativeLayout):
                     self.update()
                     print("BORDER TILE!")
                 elif self.isEmpty(x-1, y):
+                    end_x, end_y = self.calcGravity(x-1, y)
+                    y_duration = 0.2 * abs(y-end_y)
+                    anim = Animation(x=end_x*100, y=y*100, duration=0.2) + Animation(x=end_x*100, y=end_y*100, duration = y_duration)
+                    anim.start(tile)
+                    yield y_duration + 0.1
                     print("SOUNDS GOOD")
                     self.add(x, y, -1)
                     self.addWithGravity(x-1, y, value-1)
@@ -151,6 +172,7 @@ class Board(RelativeLayout):
                     print("CAN'T MOVE THERE")
         self.gravity(x)
         self.update()
+    
     
     def gravity(self, x):
         yOrder = 1
@@ -216,6 +238,15 @@ class Board(RelativeLayout):
     def randomX(self):
         return random.randint(1,self.length-2)
     
+    def calcGravity(self, x, y):
+        for i in range(y, 0, -1):
+            if self.isEmpty(x, i) == False:
+                y = i+1
+                return x,y
+            elif i == 1:
+                y = i
+                return x, y
+            
     def addWithGravity(self, x, y, v):
         for i in range(y, 0, -1):
             if self.isEmpty(x, i) == False:
@@ -253,25 +284,28 @@ class Board(RelativeLayout):
 
     def isEmpty(self, x, y):
         for child in self.children:
-            if (child.ids.x) == x and (child.ids.y) == y and (child.ids.value) == -1:
-                return True
-        return False
+            if (child.ids.x) == x and (child.ids.y) == y and (child.ids.value) != -1:
+                return False
+        return True
     
-
+    
 
     def remove(self, x, y):
         for child in self.children:
             if (child.ids.x) == x and (child.ids.y) == y:
                 self.remove_widget(child)
 
-    def add(self, x, y, value):
+    def add(self, x, y, v):
         s='src/tile.png'
-        if value in range (0,5):
-            s='src/' + str(value) + '-tile.png'
+        if v in range (0,5):
+            s='src/' + str(v) + '-tile.png'
         for child in self.children:
-            if (child.ids.x) == x and (child.ids.y) == y:
+            if (child.ids.x) == x and (child.ids.y) == y and (child.ids.value) != -1:
                 self.remove_widget(child)
-                self.add_widget(BoardTile(x=(x*100), y=(y*100), ids={'x': x, 'y': y, 'value': value, 'object':'tile'}, s=s, v=value, gridX= x, gridY=y, board_instance=self))
+                self.add_widget(BoardTile(x=(x*100), y=(y*100), ids={'x': x, 'y': y, 'value': v, 'object':'tile'}, s=s, v=v, gridX= x, gridY=y, board_instance=self))
+                return
+        self.add_widget(BoardTile(x=(x*100), y=(y*100), ids={'x': x, 'y': y, 'value': v, 'object':'tile'}, s=s, v=v, gridX= x, gridY=y, board_instance=self))
+
 
     def update(self):
         # floor case
