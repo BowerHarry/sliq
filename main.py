@@ -4,7 +4,7 @@ from kivy.uix.label import Label
 
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.properties import (
-    NumericProperty, ObjectProperty, ReferenceListProperty
+    NumericProperty, ObjectProperty
 )
 from kivy.core.window import Window
 from kivy.properties import StringProperty
@@ -40,7 +40,6 @@ class BoardTile(ButtonBehavior, RelativeLayout):
 
     def on_touch_up(self, touch):
         if self.clicked_inside and not self.v==-1:
-            # print(str(self.x) + ", " + str(self.y))
             releaseX, releaseY = touch.pos
             abs_x = self.x + 50
             self.clicked_inside = False
@@ -135,7 +134,7 @@ class Board(RelativeLayout):
             if direction == "RIGHT":
                 if self.isBorder(x+1, y) != -1 and self.isBorder(x+1, y) == value:
                     self.score += value
-                    self.add(x, y, -1)
+                    self.remove(x, y)
                     self.gravity(x)
                     self.update()
                     print("BORDER TILE!")
@@ -146,7 +145,7 @@ class Board(RelativeLayout):
                     anim.start(tile)
                     yield y_duration + 0.1
                     print("SOUNDS GOOD")
-                    self.add(x, y, -1)
+                    self.remove(x, y)
                     self.addWithGravity(x+1, y, value-1)
                     self.update()
                 else:
@@ -154,7 +153,7 @@ class Board(RelativeLayout):
             elif direction == "LEFT":
                 if self.isBorder(x-1, y) != -1 and self.isBorder(x-1, y) == value:
                     self.score += value
-                    self.add(x, y, -1)
+                    self.remove(x, y)
                     self.gravity(x)
                     self.update()
                     print("BORDER TILE!")
@@ -165,7 +164,7 @@ class Board(RelativeLayout):
                     anim.start(tile)
                     yield y_duration + 0.1
                     print("SOUNDS GOOD")
-                    self.add(x, y, -1)
+                    self.remove(x, y)
                     self.addWithGravity(x-1, y, value-1)
                     self.update()
                 else:
@@ -179,7 +178,7 @@ class Board(RelativeLayout):
         while yOrder < self.length-1:
             for child in self.children:
                 if (child.ids.x) == x and (child.ids.y) == yOrder and (child.ids.value) != -1:
-                    self.add(x, child.ids.y, -1)
+                    self.remove(x, child.ids.y)
                     self.addWithGravity(child.ids.x, child.ids.y, child.ids.value)
             yOrder+=1
 
@@ -292,7 +291,7 @@ class Board(RelativeLayout):
 
     def remove(self, x, y):
         for child in self.children:
-            if (child.ids.x) == x and (child.ids.y) == y:
+            if (child.ids.x) == x and (child.ids.y) == y and (child.ids.value) != -1:
                 self.remove_widget(child)
 
     def add(self, x, y, v):
@@ -314,10 +313,9 @@ class Board(RelativeLayout):
                 points = self.border.grid[child.ids.x][0]
                 print("\n" + str(points) + " points gained. (F)(" + str(child.ids.x) + ",0)")
                 self.score += points
-                self.add(child.ids.x, child.ids.y, -1)
+                self.remove(child.ids.x, child.ids.y)
                 self.gravity(child.ids.x)
                 self.update()
-                # print(self.border.grid[child.ids.x][0])
 
 
 class SliqGame(Widget):
@@ -325,7 +323,6 @@ class SliqGame(Widget):
     score = ObjectProperty(None)
 
     def start(self):
-        # self.add_widget(Score(x=100, y=100))
         pass
 
     def rotateBorder(self):
@@ -338,7 +335,6 @@ class SliqApp(App):
     def build(self):
         game = SliqGame()
         game.start() # kick off game
-        # Clock.schedule_interval(game.update, 5)
         return game
     
 
