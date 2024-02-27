@@ -1,16 +1,5 @@
 <BoardTile>:
     size: 100, 100
-    Image:
-        source: root.s
-        # keep_ratio: False
-        # pos_hint: {'x': 0.0, 'y': 0.5}
-        # pos: self.x, self.y
-        size_hint_x: None
-        size_hint_y: None
-        size_x: 100
-        size_y:100
-        # size_hint: 0.125, 0.125 # if you are setting the size, the hint must be set to None
-        # size: 100, 100
 
 <TileVerticalEdge>:
     Image:
@@ -32,7 +21,22 @@
 
 
 <Board>:
+    border: border
+    Border:
+        id: border
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5)
 
+<Border>:
+    angle: 0
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: self.angle
+            axis: 0,0,1
+            origin: (root.width * 0.5 + 450,root.height * 0.5 + 450)
+    canvas.after:
+        PopMatrix
 
 
 <SliqGame>:
@@ -63,3 +67,4 @@
         id: board
         center_x: (root.width / 2) -450
         center_y: (root.height / 2) -400
+        
