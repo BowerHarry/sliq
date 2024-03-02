@@ -19,15 +19,7 @@
         size_hint: None, None # if you are setting the size, the hint must be set to None
         size: 100, 20
 
-
-<Board>:
-    border: border
-    Border:
-        id: border
-        center_x: (root.width * 0.5)
-        center_y: (root.height * 0.5)
-
-<Border>:
+<BorderEdge>:
     angle: 0
     canvas.before:
         PushMatrix
@@ -37,6 +29,81 @@
             origin: (root.width * 0.5 + 450,root.height * 0.5 + 450)
     canvas.after:
         PopMatrix
+
+<Board>:
+    border: border
+    Border:
+        id: border
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5)
+
+<Border>:
+    a: A
+    a0:A0
+    b: B
+    b0:B0
+    c: C
+    c0:C0
+    d: D
+    d0:D0
+    BorderEdge:
+        id: A
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5)
+    BorderEdge:
+        id: A0
+        center_x: (root.width * 0.5) - 800
+        center_y: (root.height * 0.5)
+    BorderEdge:
+        id: B
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5)
+    BorderEdge:
+        id: B0
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5) +800
+    BorderEdge:
+        id: C
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5)
+    BorderEdge:
+        id: C0
+        center_x: (root.width * 0.5) + 800
+        center_y: (root.height * 0.5)
+    BorderEdge:
+        id: D
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5)
+    BorderEdge:
+        id: D0
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5) - 800
+
+    # angle: 0
+    # canvas.before:
+    #     PushMatrix
+    #     Rotate:
+    #         angle: self.angle
+    #         axis: 0,0,1
+    #         origin: (root.width * 0.5 + 450,root.height * 0.5 + 450)
+    # canvas.after:
+    #     PopMatrix
+
+<BorderVerticalCover>
+    canvas:
+        Color:
+            rgba: 0.9, 0.9, 0.9, 1
+        Rectangle:
+            pos: self.center_x, self.center_y
+            size: 10, 800
+
+<BorderHorizontalCover>
+    canvas:
+        Color:
+            rgba: 0.9, 0.9, 0.9, 1
+        Rectangle:
+            pos: self.center_x, self.center_y
+            size: 800, 10
 
 
 <SliqGame>:
@@ -68,3 +135,27 @@
         center_x: (root.width / 2) -450
         center_y: (root.height / 2) -400
         
+    BorderVerticalCover:
+        center_x: (root.width * 0.5) - 405
+        center_y: (root.height * 0.5) - 1153
+    BorderVerticalCover:
+        center_x: (root.width * 0.5) - 405
+        center_y: (root.height * 0.5) + 453
+    BorderVerticalCover:
+        center_x: (root.width * 0.5) + 395
+        center_y: (root.height * 0.5) + 453
+    BorderVerticalCover:
+        center_x: (root.width * 0.5) + 395
+        center_y: (root.height * 0.5) - 1153
+    BorderHorizontalCover:
+        center_x: (root.width * 0.5) + 403
+        center_y: (root.height * 0.5) + 447
+    BorderHorizontalCover:
+        center_x: (root.width * 0.5) + 403
+        center_y: (root.height * 0.5) - 355
+    BorderHorizontalCover:
+        center_x: (root.width * 0.5) - 1203
+        center_y: (root.height * 0.5) - 355
+    BorderHorizontalCover:
+        center_x: (root.width * 0.5) - 1203
+        center_y: (root.height * 0.5) + 447
