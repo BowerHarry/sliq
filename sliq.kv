@@ -1,23 +1,8 @@
 <BoardTile>:
     size: 100, 100
 
-<TileVerticalEdge>:
-    Image:
-        source: root.s
-        keep_ratio: False
-        # pos_hint: {'x': 0.0, 'y': 0.5}
-        # pos: root.x, root.y
-        size_hint: None, None # if you are setting the size, the hint must be set to None
-        size: 20, 100
 
-<TileHorizontalEdge>:
-    Image:
-        source: root.s
-        keep_ratio: False
-        # pos_hint: {'x': 0.0, 'y': 0.5}
-        # pos: root.x, root.y
-        size_hint: None, None # if you are setting the size, the hint must be set to None
-        size: 100, 20
+<TileEdge>:
 
 <BorderEdge>:
     angle: 0
@@ -78,16 +63,6 @@
         id: D0
         center_x: (root.width * 0.5)
         center_y: (root.height * 0.5) - 800
-
-    # angle: 0
-    # canvas.before:
-    #     PushMatrix
-    #     Rotate:
-    #         angle: self.angle
-    #         axis: 0,0,1
-    #         origin: (root.width * 0.5 + 450,root.height * 0.5 + 450)
-    # canvas.after:
-    #     PopMatrix
 
 <BorderVerticalCover>
     canvas:

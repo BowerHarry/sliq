@@ -1,5 +1,7 @@
 from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.image import Image
 from kivy.properties import ObjectProperty
+from kivy.uix.widget import Widget
 from kivy.properties import StringProperty
 from kivy.properties import NumericProperty
 import random
@@ -7,15 +9,41 @@ import functools
 from kivy.clock import Clock
 from kivy.animation import Animation
 
-class TileVerticalEdge(RelativeLayout):
-    s=StringProperty()
-    x=NumericProperty()
-    y=NumericProperty()
+class BorderVerticalCover(Widget):
+    pass
 
-class TileHorizontalEdge(RelativeLayout):
+class BorderHorizontalCover(Widget):
+    pass
+
+class TileEdge(RelativeLayout):
     s=StringProperty()
     x=NumericProperty()
     y=NumericProperty()
+    img = Image()
+
+    def __init__(self, x, y, i, j, v, o, **kwargs):
+        self.s='src/' + str(v) + '-'+ o +'-edge.png'
+        img = Image(source = self.s)
+        img.size_hint_x = None
+        img.size_hint_y = None
+        if o == "horizontal":
+            self.size_x = 100
+            self.size_y = 20
+            img.size_x = 100
+            img.size_y = 20
+        elif o == "vertical":
+            self.size_x = 20
+            self.size_y = 100
+            img.size_x = 20
+            img.size_y = 100
+        img.keep_ratio = False
+        self.x = x
+        self.y = y
+        self.o = o
+        self.ids = {'x': i, 'y': j, 'value': v, 'object':'border'}
+        super(TileEdge, self).__init__(**kwargs)
+        self.img = img
+        self.add_widget(img)
 
 class Border(RelativeLayout):
     rotationCount = 1
@@ -34,17 +62,53 @@ class Border(RelativeLayout):
         super().__init__(**kwargs)
         self.length = 8+2
         self.grid = [[None for x in range(self.length)] for y in range(self.length)]
+        self.generateRandomBorder()
+        Clock.schedule_once(lambda dt: self.addBorderTiles())
+        Clock.schedule_once(lambda dt: self.a0.rotate())
+        Clock.schedule_once(lambda dt: self.b0.rotate())
+        Clock.schedule_once(lambda dt: self.c0.rotate())
+        Clock.schedule_once(lambda dt: self.d0.rotate())
+
+    def generateRandomBorder(self):
         grid = self.grid
         for i in range(len(grid[0])):
             grid[0][i] = self.randomValue()
             grid[self.length-1][i] = self.randomValue()
             grid[i][0] = self.randomValue()
             grid[i][self.length-1] = self.randomValue()
-        Clock.schedule_once(lambda dt: self.addBorderTiles())
-        Clock.schedule_once(lambda dt: self.a0.rotate())
-        Clock.schedule_once(lambda dt: self.b0.rotate())
-        Clock.schedule_once(lambda dt: self.c0.rotate())
-        Clock.schedule_once(lambda dt: self.d0.rotate())
+    
+    def generateNewEdge(self):
+        if self.rotationCount % 4 == 1:
+            self.generateNewEdgeValue(self.a, self.a0, "vertical")
+        elif self.rotationCount % 4 == 2:
+            self.generateNewEdgeValue(self.d, self.d0, "horizontal")
+        elif self.rotationCount % 4 == 3:
+            self.generateNewEdgeValue(self.c, self.c0, "vertical")
+        elif self.rotationCount % 4 == 0:
+            self.generateNewEdgeValue(self.b, self.b0, "horizontal")
+        
+    def generateNewEdgeValue(self, edge, edge0, orientation):
+        flip = False
+        if self.rotationCount % 4 == 2 or self.rotationCount % 4 == 3:
+            flip = True
+        print("\n")
+        grid = list(map(list, self.grid))
+        for i in range(len(grid[0])):
+            newValue = self.randomValue()
+            grid[i][self.length-1] = newValue
+            for child in edge.children:
+                index = i
+                if flip == True:
+                    index = self.length - 1 - i
+                if ((child.ids.x) == index and child.o == "horizontal") or ((child.ids.y) == index and child.o == "vertical"):
+                    child.ids.value = newValue
+                    child.img.source='src/' + str(newValue) + '-' + orientation + '-edge.png'
+            for child in edge0.children:
+                if ((child.ids.x) == index and child.o == "horizontal") or ((child.ids.y) == index and child.o == "vertical"):
+                    child.ids.value = newValue
+                    child.img.source='src/' + str(newValue) + '-' + orientation + '-edge.png'
+        self.grid = grid
+
 
     def print(self):
         g = self.grid
@@ -80,7 +144,9 @@ class Border(RelativeLayout):
         self.rotateAll(self.d0, self.d, 3)
 
         self.rotateBorderGrid()
+        self.generateNewEdge()
         self.rotationCount+=1
+        
 
 
     def randomValue(self):
@@ -102,8 +168,10 @@ class Border(RelativeLayout):
                             x = i-1
                         else:
                             x = i
-                        self.a.add_widget(TileVerticalEdge(x=90+(x*100), y=(j*100), ids={'x': i, 'y': j, 'value':self.grid[i][j], 'object':'border'}, s=s))
-                        self.a0.add_widget(TileVerticalEdge(x=90+(x*100), y=(j*100), ids={'x': i, 'y': j, 'value':self.grid[i][j], 'object':'border'}, s=s))
+                        newTileEdge = TileEdge(50+(x*100), (j*100), i, j, self.grid[i][j], "vertical")
+                        newTileEdge0 = TileEdge(50+(x*100), (j*100), i, j, self.grid[i][j], "vertical")
+                        self.a.add_widget(newTileEdge)
+                        self.a0.add_widget(newTileEdge0)
 
                     if i == self.length-1:
                         s='src/' + str(self.grid[i][j]) + '-vertical-edge.png'
@@ -111,27 +179,31 @@ class Border(RelativeLayout):
                             x = i-1
                         else:
                             x = i
-                        self.c.add_widget(TileVerticalEdge(x=90+(x*100), y=(j*100), ids={'x': i, 'y': j, 'value':self.grid[i][j], 'object':'border'}, s=s))
-                        self.c0.add_widget(TileVerticalEdge(x=90+(x*100), y=(j*100), ids={'x': i, 'y': j, 'value':self.grid[i][j], 'object':'border'}, s=s))
+                        newTileEdge = TileEdge(50+(x*100), (j*100), i, j, self.grid[i][j], "vertical")
+                        newTileEdge0 = TileEdge(50+(x*100), (j*100), i, j, self.grid[i][j], "vertical")
+                        self.c.add_widget(newTileEdge)
+                        self.c0.add_widget(newTileEdge0)
 
                     if j == 0:
                         if j == self.length-1:
                             y = j-1
                         else:
                             y = j
-                        s='src/' + str(self.grid[i][j]) + '-horizontal-edge.png'
-                        self.d.add_widget(TileHorizontalEdge(x=(i*100), y=90+(y*100), ids={'x': i, 'y': j, 'value':self.grid[i][j], 'object':'border'}, s=s))
-                        self.d0.add_widget(TileHorizontalEdge(x=(i*100), y=90+(y*100), ids={'x': i, 'y': j, 'value':self.grid[i][j], 'object':'border'}, s=s))
-
+                        newTileEdge = TileEdge((i*100), 50+(y*100), i, j, self.grid[i][j], "horizontal")
+                        newTileEdge0 = TileEdge((i*100), 50+(y*100), i, j, self.grid[i][j], "horizontal")
+                        self.d.add_widget(newTileEdge)
+                        self.d0.add_widget(newTileEdge0)
 
                     if j == self.length-1:
                         if j == self.length-1:
                             y = j-1
                         else:
                             y = j
-                        s='src/' + str(self.grid[i][j]) + '-horizontal-edge.png'
-                        self.b.add_widget(TileHorizontalEdge(x=(i*100), y=90+(y*100), ids={'x': i, 'y': j, 'value':self.grid[i][j], 'object':'border'}, s=s))
-                        self.b0.add_widget(TileHorizontalEdge(x=(i*100), y=90+(y*100), ids={'x': i, 'y': j, 'value':self.grid[i][j], 'object':'border'}, s=s))
+
+                        newTileEdge = TileEdge((i*100), 50+(y*100), i, j, self.grid[i][j], "horizontal")
+                        newTileEdge0 = TileEdge((i*100), 50+(y*100), i, j, self.grid[i][j], "horizontal")
+                        self.b.add_widget(newTileEdge)
+                        self.b0.add_widget(newTileEdge0)
 
 class BorderEdge(RelativeLayout):
     def __init__(self, **kwargs):

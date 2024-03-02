@@ -5,6 +5,7 @@ from kivy.properties import ObjectProperty
 from kivy.core.window import Window
 from kivy.properties import NumericProperty
 from kivy.core.window import Window
+from kivy.clock import Clock
 from border import Border
 from board import Board
 
@@ -16,23 +17,21 @@ screenX, screenY = Window.size
 class Score(Label):
     points = NumericProperty(0)
 
-class BorderVerticalCover(Widget):
-    pass
-
-class BorderHorizontalCover(Widget):
-    pass
-
 
 class SliqGame(Widget):
     board = ObjectProperty(None)
     score = ObjectProperty(None)
-    
+    timer = None
 
     def start(self):
+        self.timer = Clock.schedule_interval(self.rotateBorder, 10)
+
         pass
 
-    def rotateBorder(self):
+    def rotateBorder(self, dt=None):
+        Clock.unschedule(self.timer)
         self.board.rotateBorder()
+        self.timer = Clock.schedule_interval(self.rotateBorder, 10)
 
 
 class SliqApp(App):
