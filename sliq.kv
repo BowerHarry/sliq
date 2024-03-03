@@ -80,11 +80,29 @@
             pos: self.center_x, self.center_y
             size: 800, 10
 
+<SliqGameController>:
+    playagainButton: playagainButton
+
+    Button:
+        id: playagainButton
+        color: (1 , 1 , 1 , 1)
+        background_color: (0 , 1 , 0 , 1)
+        font_size: 70  
+        center_x: (root.width * 0.475)
+        top: root.height - (0.73 * root.height)
+        text: 'Play again'
+        on_press: root.playAgain()
+        size_hint: (.1, .05)
+        visible: root.gameEnd
+        opacity: 1 if self.visible else 0
+        disabled: not self.visible
 
 <SliqGame>:
     board: board
     score: score
+    highscore: highscore
     rotateButton: rotateButton
+    endgameMessage: endGameMessage
 
     Button:
         id: rotateButton
@@ -96,6 +114,9 @@
         text: 'Rotate!'
         on_press: root.rotateBorder()
         size: 250, 70
+        visible: not root.endGameVisible
+        opacity: 1 if self.visible else 0
+        disabled: not self.visible
 
     Label:
         color: (1 , 0 , 0 , 1)
@@ -106,6 +127,16 @@
         center_y: (root.height * 0.9)
         size: 250, 70
         text: "Score: " + str(self.points)
+
+    Label:
+        color: (1 , 0 , 0 , 1)
+        font_size: 70  
+        id: highscore
+        score: self.score
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.1)
+        size: 250, 70
+        text: "Highscore: " + str(self.score)
     
     Board:
         id: board
@@ -136,3 +167,16 @@
     BorderHorizontalCover:
         center_x: (root.width * 0.5) - 1203
         center_y: (root.height * 0.5) + 447
+
+    Label:
+        color: (1 , 0 , 0 , 1)
+        font_size: 70  
+        id: endGameMessage
+        visible: root.endGameVisible
+        size_hint_x: 1 if self.visible else 0
+        opacity: 1 if self.visible else 0
+        disabled: not self.visible
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5)
+        size: 250, 70
+        text: "YOU LOSE"

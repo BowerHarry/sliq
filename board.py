@@ -5,7 +5,6 @@ from kivy.properties import StringProperty
 from kivy.properties import NumericProperty
 import random
 import math
-import time
 from kivy.uix.behaviors import ButtonBehavior
 import functools
 from functools import partial
@@ -89,11 +88,6 @@ class Board(RelativeLayout):
                 newTile = BoardTile(i, j, -1, self, False)
                 self.add_widget(newTile)
         self.fillWithStartingGrid()
-        # self.newTile()
-        
-        # self.newTile()
-        # self.newTile()
-        # self.newTile()
         Clock.schedule_once(lambda dt: self.update())
         
 
@@ -119,41 +113,45 @@ class Board(RelativeLayout):
                     if self.isBorder(x+1, y) == value:
                         self.score += value
                         self.remove(x, y)
+                        print("\n" + str(value) + " points gained. (R)(" + str(x) + ","+ str(y) +")")
                         self.gravity(x)
                         self.update()
-                    print("BORDER TILE!")
+                    # print("BORDER TILE!")
                 elif self.isEmpty(x+1, y):
                     end_x, end_y = self.calcGravity(x+1, y)
                     y_duration = 0.2 * abs(y-end_y)
                     anim = Animation(x=end_x*100, y=y*100, duration=0.2) + Animation(x=end_x*100, y=end_y*100, duration = y_duration)
                     anim.start(tile)
                     yield y_duration + 0.1
-                    print("SOUNDS GOOD")
+                    # print("SOUNDS GOOD")
                     self.remove(x, y)
                     self.add(end_x, end_y, value-1)
                     self.update()
                 else:
-                    print("CAN'T MOVE THERE")
+                    pass
+                    # print("CAN'T MOVE THERE")
             elif direction == "LEFT":
                 if self.isBorder(x-1, y) != None:
                     if self.isBorder(x-1, y) == value:
                         self.score += value
                         self.remove(x, y)
+                        print("\n" + str(value) + " points gained. (L)(" + str(x) + ","+ str(y) +")")
                         self.gravity(x)
                         self.update()
-                    print("BORDER TILE!")
+                    # print("BORDER TILE!")
                 elif self.isEmpty(x-1, y):
                     end_x, end_y = self.calcGravity(x-1, y)
                     y_duration = 0.2 * abs(y-end_y)
                     anim = Animation(x=end_x*100, y=y*100, duration=0.2) + Animation(x=end_x*100, y=end_y*100, duration = y_duration)
                     anim.start(tile)
                     yield y_duration + 0.1
-                    print("SOUNDS GOOD")
+                    # print("SOUNDS GOOD")
                     self.remove(x, y)
                     self.add(end_x, end_y, value-1)
                     self.update()
                 else:
-                    print("CAN'T MOVE THERE")
+                    pass
+                    # print("CAN'T MOVE THERE")
         self.gravity(x)
         self.update()
     
@@ -187,6 +185,12 @@ class Board(RelativeLayout):
         self.update()
         self.turn += 1
         self.tiles_dropping.clear()
+
+    def gameLoseConditionCheck(self):
+        for i in range (1, self.length-1):
+            if not self.isEmptyLose(i, self.length-2):
+                return True
+        return False
 
 
     @yield_to_sleep
@@ -234,8 +238,11 @@ class Board(RelativeLayout):
         x = self.randomX()
         y = self.length-2
         v = self.randomValue()
-        tile = self.add(x, y, v, True)
         end_x, end_y = self.calcGravity(x, y-1)
+        if end_y > 8:
+            return
+        tile = self.add(x, y, v, True)
+        
         if (end_x, end_y) in self.tiles_dropping:
             end_y +=1
         self.tiles_dropping.append((end_x, end_y))
@@ -261,7 +268,7 @@ class Board(RelativeLayout):
             self.events.pop(tile)
             self.events_timeElapsed.pop(t)
         except:
-            print("hmm")
+            pass
         
 
         self.remove_widget(tile)
@@ -277,8 +284,14 @@ class Board(RelativeLayout):
     @yield_to_sleep
     def checkAnimY(self, x, y, currentEnd_Y, anim, tile, v, callback, dt):
         end_x, end_y = self.calcGravity(x, y)
+        if end_y > 8:
+            callback(True)
+            return
         if (x, end_y) in self.tiles_dropping and end_y != currentEnd_Y:
             end_y += 1
+            if end_y > 8:
+                callback(True)
+                return
             self.tiles_dropping.append((end_x, end_y))
         if end_y > currentEnd_Y:
             t = 0.2
@@ -290,7 +303,7 @@ class Board(RelativeLayout):
                 self.events.pop(tile)
                 self.events_timeElapsed.pop(t)
             except:
-                print("hmm")
+                pass
 
             anim.cancel(tile)
             y_duration = abs(anim.duration - t.time_elapsed - (0.2*(end_y-currentEnd_Y)))
@@ -299,12 +312,6 @@ class Board(RelativeLayout):
             yield(y_duration)
             self.add(end_x, end_y, v)
             callback(True)
-        # try:
-        #     clock, n = self.events[tile]
-        #     self.events.update({tile: (clock, n+1)})
-            
-        # except:
-        #     print("hmm")
         
     
     def isBorder(self, x, y):
@@ -315,6 +322,13 @@ class Board(RelativeLayout):
         for child in self.children:
             if (not isinstance(child, Border)):
                 if (child.ids.x) == x and (child.ids.y) == y and (child.ids.value) != -1:
+                    return False
+        return True
+    
+    def isEmptyLose(self, x, y):
+        for child in self.children:
+            if (not isinstance(child, Border)):
+                if (child.ids.x) == x and (child.ids.y) == y and (child.ids.value) != -1 and (child.newTile) == False:
                     return False
         return True
     

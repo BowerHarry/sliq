@@ -91,7 +91,6 @@ class Border(RelativeLayout):
         flip = False
         if self.rotationCount % 4 == 2 or self.rotationCount % 4 == 3:
             flip = True
-        print("\n")
         grid = list(map(list, self.grid))
         for i in range(len(grid[0])):
             newValue = self.randomValue()
@@ -228,13 +227,11 @@ class BorderEdge(RelativeLayout):
         self.angle = self.angle-90
 
     def animateUp(self, *kwargs):
-        print("rotating")
         anim = Animation(x = self.x, y=self.y+800, duration=1)
         anim.start(self)
 
     @yield_to_sleep
     def animateUpWR(self, *kwargs):
-        print("rotating")
         anim = Animation(x = self.x, y=self.y+800, duration=1)
         anim.start(self)
         yield(1)
@@ -243,13 +240,11 @@ class BorderEdge(RelativeLayout):
     
 
     def animateDown(self, *kwargs):
-        print("rotating")
         anim = Animation(x = self.x, y=self.y-800, duration=1)
         anim.start(self)
 
     @yield_to_sleep
     def animateDownWR(self, *kwargs):
-        print("rotating")
         anim = Animation(x = self.x, y=self.y-800, duration=1)
         anim.start(self)
         yield(1)
@@ -258,18 +253,15 @@ class BorderEdge(RelativeLayout):
 
     
     def animateRight(self, *kwargs):
-        print("rotating")
         anim = Animation(x = self.x + 800, y=self.y, duration=1)
         anim.start(self)
     
     def animateLeft(self, *kwargs):
-        print("rotating")
         anim = Animation(x = self.x - 800, y=self.y, duration=1)
         anim.start(self)
 
     @yield_to_sleep
     def animateLeftWR(self, *kwargs):
-        print("rotating")
         anim = Animation(x = self.x - 800, y=self.y, duration=1)
         anim.start(self)
         yield(1)
@@ -278,7 +270,6 @@ class BorderEdge(RelativeLayout):
         
     @yield_to_sleep
     def animateRightWR(self, *kwargs):
-        print("rotating")
         anim = Animation(x = self.x + 800, y=self.y, duration=1)
         anim.start(self)
         yield(1)
