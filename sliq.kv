@@ -1,3 +1,5 @@
+#:import utils kivy.utils
+
 <BoardTile>:
     size: 100, 100
 
@@ -6,6 +8,8 @@
 
 <BorderEdge>:
     angle: 0
+    size_hint_x: None
+    size_hint_y: None
     canvas.before:
         PushMatrix
         Rotate:
@@ -17,6 +21,8 @@
 
 <Board>:
     border: border
+    size_hint_x: None
+    size_hint_y: None
     Border:
         id: border
         center_x: (root.width * 0.5)
@@ -31,6 +37,8 @@
     c0:C0
     d: D
     d0:D0
+    size_hint_x: None
+    size_hint_y: None
     BorderEdge:
         id: A
         center_x: (root.width * 0.5)
@@ -65,20 +73,24 @@
         center_y: (root.height * 0.5) - 800
 
 <BorderVerticalCover>
+    size_hint_x: None
+    size_hint_y: None
     canvas:
         Color:
-            rgba: 0.9, 0.9, 0.9, 1
+            rgb: utils.get_color_from_hex('#F5F5F5')
         Rectangle:
             pos: self.center_x, self.center_y
-            size: 10, 800
+            size: 20, 800
 
 <BorderHorizontalCover>
+    size_hint_x: None
+    size_hint_y: None
     canvas:
         Color:
-            rgba: 0.9, 0.9, 0.9, 1
+            rgb: utils.get_color_from_hex('#F5F5F5')
         Rectangle:
             pos: self.center_x, self.center_y
-            size: 800, 10
+            size: 800, 20
 
 <SliqGameController>:
     playagainButton: playagainButton
@@ -102,81 +114,215 @@
     score: score
     highscore: highscore
     rotateButton: rotateButton
-    endgameMessage: endGameMessage
-
-    Button:
-        id: rotateButton
-        color: (1 , 1 , 1 , 1)
-        background_color: (0 , 1 , 0 , 1)
-        font_size: 70  
-        center_x: (root.width * 0.5)
-        top: root.height - (0.8 * root.height)
-        text: 'Rotate!'
-        on_press: root.rotateBorder()
-        size: 250, 70
-        visible: not root.endGameVisible
-        opacity: 1 if self.visible else 0
-        disabled: not self.visible
-
-    Label:
-        color: (1 , 0 , 0 , 1)
-        font_size: 70  
-        id: score
-        points: board.score
-        center_x: (root.width * 0.5)
-        center_y: (root.height * 0.9)
-        size: 250, 70
-        text: "Score: " + str(self.points)
-
-    Label:
-        color: (1 , 0 , 0 , 1)
-        font_size: 70  
-        id: highscore
-        score: self.score
-        center_x: (root.width * 0.5)
-        center_y: (root.height * 0.1)
-        size: 250, 70
-        text: "Highscore: " + str(self.score)
+    teddy: teddy
     
     Board:
         id: board
         center_x: (root.width / 2) -450
-        center_y: (root.height / 2) -400
+        center_y: (root.height / 2) -250
+        visible: not root.endGameVisible
+        opacity: 1 if self.visible else 0
         
     BorderVerticalCover:
         center_x: (root.width * 0.5) - 405
-        center_y: (root.height * 0.5) - 1153
+        center_y: (root.height * 0.5) - 1003
     BorderVerticalCover:
         center_x: (root.width * 0.5) - 405
-        center_y: (root.height * 0.5) + 453
+        center_y: (root.height * 0.5) + 603
     BorderVerticalCover:
         center_x: (root.width * 0.5) + 395
-        center_y: (root.height * 0.5) + 453
+        center_y: (root.height * 0.5) + 603
     BorderVerticalCover:
         center_x: (root.width * 0.5) + 395
-        center_y: (root.height * 0.5) - 1153
+        center_y: (root.height * 0.5) - 1003
     BorderHorizontalCover:
         center_x: (root.width * 0.5) + 403
-        center_y: (root.height * 0.5) + 447
+        center_y: (root.height * 0.5) + 593
     BorderHorizontalCover:
         center_x: (root.width * 0.5) + 403
-        center_y: (root.height * 0.5) - 355
+        center_y: (root.height * 0.5) - 205
     BorderHorizontalCover:
         center_x: (root.width * 0.5) - 1203
-        center_y: (root.height * 0.5) - 355
+        center_y: (root.height * 0.5) - 205
     BorderHorizontalCover:
         center_x: (root.width * 0.5) - 1203
-        center_y: (root.height * 0.5) + 447
+        center_y: (root.height * 0.5) + 597
 
     Label:
-        color: (1 , 0 , 0 , 1)
-        font_size: 70  
-        id: endGameMessage
-        visible: root.endGameVisible
-        size_hint_x: 1 if self.visible else 0
+        color: utils.get_color_from_hex('#4b4b4b')
+        font_size: 30  
+        id: score
+        points: board.score
+        center_x: (root.width * 0.4)
+        center_y: (root.height * 0.9)
+        # size: 250, 70
+        text: "Score: " + str(self.points)
+        visible: not root.endGameVisible
         opacity: 1 if self.visible else 0
-        disabled: not self.visible
+        size_hint_x: None
+        size_hint_y: None
+        size: 250, 70
+        disabled: root.endGameVisible
+
+    Label:
+        color: utils.get_color_from_hex('#4b4b4b')
+        font_size: 30  
+        id: highscore
+        score: self.score
+        center_x: (root.width * 0.57)
+        center_y: (root.height * 0.9)
+        # size: 250, 70
+        text: "Highscore: " + str(self.score)
+        visible: not root.endGameVisible
+        opacity: 1 if self.visible else 0
+        size_hint_x: None
+        size_hint_y: None
+        size: 250,70
+        disabled: root.endGameVisible
+
+
+    Image:
+        source: 'src/pipes.png'
+        # size: 800, 800
+        center_x: (root.width * 0.5) + 13
+        center_y: (root.height * 0.5) - 460
+        keep_ratio: True
+        size_hint_x: None
+        size_hint_y: None
+        size: 800, 800
+        visible: not root.endGameVisible
+        opacity: 1 if self.visible else 0
+
+    Image:
+        id: teddy
+        source: 'src/teddy.png'
+        # size: 200, 200
+        center_x: (root.width * 0.5) - 370
+        center_y: (root.height * 0.5) - 670
+        keep_ratio: True
+        visible: not root.endGameVisible
+        size_hint_x: None
+        size_hint_y: None
+        size: 200,200
+        # size_hint_x: 1 if self.visible else 0
+        opacity: 1 if self.visible else 0
+
+        
+
+    Button:
+        # source: 'src/lever.png'
+        id: rotateButton
+        # size: 150, 150
+        center_x: (root.width * 0.5) + 480
+        center_y: (root.height * 0.5) + 300
+        keep_ratio: True
+        background_normal: 'src/lever.png'
+        background_down: 'src/lever_flip.png'
+        background_disabled_normal: 'src/lever_flip.png'
+        background_disabled_down: 'src/lever_flip.png'
+        on_press: root.rotateBorder()
+        visible: not root.endGameVisible
+        opacity: 1 if self.visible else 0
+        size_hint_x: None
+        size_hint_y: None
+        size: 150,150
+        disabled: root.endGameVisible
+    
+    # Image:
+    #     source: 'src/endgame.png'
+    #     size: 2000, 2000
+    #     center_x: (root.width * 0.5) - 8
+    #     center_y: (root.height * 0.5)
+    #     keep_ratio: True
+    #     visible: root.gameWon
+    #     size_hint_x: 1 if self.visible else 0
+    #     opacity: 1 if self.visible else 0
+
+    Image:
+        source: 'src/body.png'
+        # size: 2000, 2000
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5) - 500
+        keep_ratio: True
+        visible: root.gameWon
+        size_hint_x: None
+        size_hint_y: None
+        size: 2000, 2000
+        opacity: 1 if self.visible else 0
+
+    Image:
+        source: 'src/teddy-alive.png'
+        size: 2000, 2000
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5) - 500
+        keep_ratio: True
+        visible: root.gameLost
+        size_hint_x: None
+        size_hint_y: None
+        opacity: 1 if self.visible else 0
+
+    Image:
+        source: 'src/filled-head.png'
+        size: 200, 200
+        center_x: (root.width * 0.5) - 100
+        center_y: (root.height * 0.5)
+        keep_ratio: True
+        visible: root.endGameVisible & (root.stars >=1)
+        size_hint_x: None
+        size_hint_y: None
+        opacity: 1 if self.visible else 0
+    
+    Image:
+        source: 'src/empty-head.png'
+        size: 200, 200
+        center_x: (root.width * 0.5) - 100
+        center_y: (root.height * 0.5)
+        keep_ratio: True
+        visible: root.endGameVisible & (root.stars <1)
+        size_hint_x: None
+        size_hint_y: None
+        opacity: 1 if self.visible else 0
+
+    Image:
+        source: 'src/filled-head.png'
+        size: 200, 200
         center_x: (root.width * 0.5)
         center_y: (root.height * 0.5)
-        size: 250, 70
-        text: "YOU LOSE"
+        keep_ratio: True
+        visible: root.endGameVisible & (root.stars >=2)
+        size_hint_x: None
+        size_hint_y: None
+        opacity: 1 if self.visible else 0
+    
+    Image:
+        source: 'src/empty-head.png'
+        size: 200, 200
+        center_x: (root.width * 0.5)
+        center_y: (root.height * 0.5)
+        keep_ratio: True
+        visible: root.endGameVisible & (root.stars < 2)
+        size_hint_x: None
+        size_hint_y: None
+        opacity: 1 if self.visible else 0
+
+    Image:
+        source: 'src/filled-head.png'
+        size: 200, 200
+        center_x: (root.width * 0.5) + 100
+        center_y: (root.height * 0.5)
+        keep_ratio: True
+        visible: root.endGameVisible & (root.stars == 3)
+        size_hint_x: None
+        size_hint_y: None
+        opacity: 1 if self.visible else 0
+
+    Image:
+        source: 'src/empty-head.png'
+        size: 200, 200
+        center_x: (root.width * 0.5) + 100
+        center_y: (root.height * 0.5)
+        keep_ratio: True
+        visible: root.endGameVisible & (root.stars != 3)
+        size_hint_x: None
+        size_hint_y: None
+        opacity: 1 if self.visible else 0

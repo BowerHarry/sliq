@@ -31,6 +31,9 @@ class BoardTile(ButtonBehavior, RelativeLayout):
         img.size_hint_y = None
         img.size_x = 100
         img.size_y = 100
+        img.anim_delay = 0.01
+        img.anim_loop = 1
+        img.mipmap= True
         self.x = x*100
         self.y = y*100
         self.gridX = x
@@ -41,7 +44,7 @@ class BoardTile(ButtonBehavior, RelativeLayout):
         self.ids = {'x': x, 'y': y, 'value': v, 'object':'tile'}
         super(BoardTile, self).__init__(**kwargs)
         self.add_widget(img)
-
+        self.img = img
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
@@ -112,21 +115,26 @@ class Board(RelativeLayout):
                 if self.isBorder(x+1, y) != None:
                     if self.isBorder(x+1, y) == value:
                         self.score += value
+                        
+                        self.parent.tiles_removed.append(value)
                         self.remove(x, y)
                         print("\n" + str(value) + " points gained. (R)(" + str(x) + ","+ str(y) +")")
-                        self.gravity(x)
-                        self.update()
+                        # self.gravity(x)
+                        # self.update()
                     # print("BORDER TILE!")
                 elif self.isEmpty(x+1, y):
+                    
                     end_x, end_y = self.calcGravity(x+1, y)
                     y_duration = 0.2 * abs(y-end_y)
-                    anim = Animation(x=end_x*100, y=y*100, duration=0.2) + Animation(x=end_x*100, y=end_y*100, duration = y_duration)
+                    #0.27 works better on laptop
+                    anim = Animation(x=end_x*100, y=y*100, duration=0.3) + Animation(x=end_x*100, y=end_y*100, duration = y_duration)
                     anim.start(tile)
-                    yield y_duration + 0.1
+                    # tile.img.source = 'src/gifs/' + str(tile.v) + '-tile-right.gif'
+                    yield y_duration + 0.2 #0.4
                     # print("SOUNDS GOOD")
                     self.remove(x, y)
                     self.add(end_x, end_y, value-1)
-                    self.update()
+                    # self.update()
                 else:
                     pass
                     # print("CAN'T MOVE THERE")
@@ -134,21 +142,24 @@ class Board(RelativeLayout):
                 if self.isBorder(x-1, y) != None:
                     if self.isBorder(x-1, y) == value:
                         self.score += value
+                        self.parent.tiles_removed.append(value)
                         self.remove(x, y)
                         print("\n" + str(value) + " points gained. (L)(" + str(x) + ","+ str(y) +")")
-                        self.gravity(x)
-                        self.update()
+                        # self.gravity(x)
+                        # self.update()
                     # print("BORDER TILE!")
                 elif self.isEmpty(x-1, y):
+                    
                     end_x, end_y = self.calcGravity(x-1, y)
                     y_duration = 0.2 * abs(y-end_y)
-                    anim = Animation(x=end_x*100, y=y*100, duration=0.2) + Animation(x=end_x*100, y=end_y*100, duration = y_duration)
+                    anim = Animation(x=end_x*100, y=y*100, duration=0.3) + Animation(x=end_x*100, y=end_y*100, duration = y_duration)
                     anim.start(tile)
-                    yield y_duration + 0.1
+                    # tile.img.source = 'src/gifs/' + str(tile.v) + '-tile-left.gif'
+                    yield y_duration + 0.2 #0.4
                     # print("SOUNDS GOOD")
                     self.remove(x, y)
                     self.add(end_x, end_y, value-1)
-                    self.update()
+                    # self.update()
                 else:
                     pass
                     # print("CAN'T MOVE THERE")
@@ -354,6 +365,7 @@ class Board(RelativeLayout):
         return newTile
 
 
+    @yield_to_sleep
     def update(self):
         # floor case
         for child in self.children:
@@ -362,6 +374,8 @@ class Board(RelativeLayout):
                     points = self.border.grid[child.ids.x][0]
                     print("\n" + str(points) + " points gained. (F)(" + str(child.ids.x) + ",0)")
                     self.score += points
+                    self.parent.tiles_removed.append(points)
+                    yield(0.1)
                     self.remove(child.ids.x, child.ids.y)
                     self.gravity(child.ids.x)
                     self.update()

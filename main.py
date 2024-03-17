@@ -12,11 +12,6 @@ from os.path import join
 Window.size = Window.size
 screenX, screenY = Window.size
 
-# if platform == 'ios':
-#     leaderboard = JsonStore(App.get_running_app().leaderboard_storage)
-# else: 
-#     leaderboard = JsonStore('leaderboard.json')
-
 class SliqGameController(RelativeLayout):
     gameEnd = BooleanProperty(False)
     playagainButton = ObjectProperty(None)
@@ -35,7 +30,7 @@ class SliqGameController(RelativeLayout):
         print("/*-------------------------------------------------*/\n                     New Game                     \n/*-------------------------------------------------*/")
         if not self.leaderboard.exists('highscore'):
             self.leaderboard.put('highscore', points=0)
-        game = SliqGame(self, self.leaderboard)
+        game = SliqGame(self, self.leaderboard, 10)
         self.add_widget(game)
         game.highscore.score = self.leaderboard.get('highscore')['points']
         self.game = game
@@ -58,5 +53,5 @@ class SliqApp(App):
     
 
 if __name__ == '__main__':
-    Window.clearcolor = (.9, .9, .9, 1)
+    Window.clearcolor = '#F5F5F5'
     SliqApp().run()
