@@ -24,9 +24,14 @@
 </p>
 
 ## Scoring points
-  +3 POINTS
++3 POINTS
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/scoring-points.gif" width="200">
+</p>
+
++2 POINTS
+<p align="left">
+  <img src="https://github.com/BowerHarry/sliq/blob/main/score-points-edge.gif" width="100">
 </p>
 
 
