@@ -46,3 +46,23 @@
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/feeding-bear.gif" width="400">
 </p>
+
+## Winning a level
+
+<p align="left">
+  <img src="https://github.com/BowerHarry/sliq/blob/main/src/filled-head.png" width="50">
+  <img src="https://github.com/BowerHarry/sliq/blob/main/src/filled-head.png" width="50">
+  <img src="https://github.com/BowerHarry/sliq/blob/main/src/filled-head.png" width="50">
+</p>
+<p align="left">
+  <img src="https://github.com/BowerHarry/sliq/blob/main/src/body.png" width="100">
+</p>
+
+<p align="left">
+  <img src="https://github.com/BowerHarry/sliq/blob/main/src/filled-head.png" width="50">
+  <img src="https://github.com/BowerHarry/sliq/blob/main/src/filled-head.png" width="50">
+  <img src="https://github.com/BowerHarry/sliq/blob/main/src/empty-head.png" width="50">
+</p>
+
+
+
