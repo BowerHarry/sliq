@@ -1,4 +1,9 @@
 # sliq
+<p align="left">
+  <img src="https://github.com/BowerHarry/sliq/blob/main/icon.png" width="200">
+</p>
+
+
 ## Tiles moving
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/tile-moving.gif" width="400">
