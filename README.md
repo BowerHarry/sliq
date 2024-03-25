@@ -208,8 +208,8 @@ If the bear is left hungry you will earn fewer heads.
 </p>
 
 ## Known Bugs
-- [ ] https://github.com/BowerHarry/sliq/issues/1
-- [ ] https://github.com/BowerHarry/sliq/issues/2
+- [ ] New tiles overloading the board when full (resolution identified) https://github.com/BowerHarry/sliq/issues/1
+- [ ] Moving a tile into another tile <0.2s before it's animation was due to finish causes weird behaviour (potential resolution identified) https://github.com/BowerHarry/sliq/issues/2
 ## License
 This project is provided under the MIT License. See LICENSE.txt.
 
