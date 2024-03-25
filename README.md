@@ -3,56 +3,50 @@
 SLIQ is a great new puzzle game being developed for iOS, with a view for future multi-platform releases.</br></br>
 The plan is for SLIQ to be published to the App Store in 2024. Both the code, and the Xcode project will remain available online. Any questions or collaborations are welcome.</br> 
 
-## Xcode Build
+[Toolcahin Build (Kivy)](README.md#toolchain-build-kivy)
+
+## Toolchain Build (Kivy)
+This section contains instructions to build the Python project into an Xcode project (presumably after making some changes). If you wish to deploy the latest Xcode build to your device - skip to the Xcode Build/Deployment section.</br></br>
+SLIQ is developed in Python, mostly using the Kivy library. Kivy has the potential to be great because (with care) the same code can theoretically be deployed to iOS, WatchOS, MacOS, Windows, Linux, Android etc. However, in practice, this can sometimes be very tough and building the code can be particularly temperamental. Below are some steps which have worked for me. Any advice in this particular area is very welcome, I have spent a very long time fighting with Toolchain builds.
+
 Clone the repository:
 ```
 git clone https://github.com/BowerHarry/sliq.git
 ```
-Change to the build directory:
+Prerequisites:
 ```
-cd sliq/sliq01-ios
+brew install autoconf automake libtool pkg-config
+brew link libtool
 ```
-Open the Xcode build
-```
-xed .
-```
-#### Install on iOS device
-1. Rename Xcode to Xcode15
-2. Plug in iOS device
-3. Choose device from the dropdown menu
-4. Click Build (you might be asked for your devices password)
-
-#### Run with an iOS simulator
-1. Choose a simulator from the dropdown menu
-2. Click Build
-
-## Source Code Prerequisites
-
-## Toolchain Build (Kivy)
-SLIQ is developed in Python, mostly using the Kivy library. Kivy has the potential to be great because (with care) the same code can theoretically be deployed to iOS, WatchOS, MacOS, Windows, Linux, Android etc. However, in practice, this can sometimes be very tough and building the code can be particularly temperamental. Below are some steps which have worked for me. Any advice in this particular area is very welcome, I have spent a very long time fighting with Toolchain builds.
-
+Using a Python virtual environment minimises conflicts with preinstalled libraries.
 ```
 pip install virtualenv
 ```
+Setup file structure in preferred location:
 ```
 mkdir _environments
 mkdir _builds
 cd _environments
 ```
+Create a Python virtual environment:
 ```
 python3.11 -m venv venv-sliq
 ```
+Activate virtual environment:
 ```
 source venv-sliq/bin/activate
 ```
-
+Install dependencies (whilst venv is active):
 ```
+pip install Cython==3.0.0
 pip install kivy-ios
 toolchain build kivy
 ```
+Check the status of the required files:
 ```
 toolchain status
 ```
+The output should be the same as the output below. If anything is not built, you can manually build it using "toolchain build <library-name>":
 ```
 audiostream  - Not built
 click        - Not built
@@ -96,16 +90,42 @@ sdl2_ttf     - Build OK (built at 2024-02-22 16:44:11.741270)
 werkzeug     - Not built
 zbarlight    - Not built
 ```
+Navigate to build folder:
 ```
 cd ..
 cd _builds
 ```
-
+Create the Xcode project:
 ```
 toolchain create sliq <sliq_filepath_main.py>
 ```
 
-This will build an Xcode project. See Xcode build.
+This will build an iOS Xcode project. See Xcode Build/Deployment section.
+
+## Xcode Build/ Deployment
+This section contains instructions on how to build the Xcode project and deploy it to your device. Apple Developer Program membership not required.</br></br>
+Clone the repository:
+```
+git clone https://github.com/BowerHarry/sliq.git
+```
+Change to the build directory:
+```
+cd sliq/sliq01-ios
+```
+Open the Xcode build
+```
+xed .
+```
+#### Install on iOS device
+1. Rename Xcode to Xcode15
+2. Plug in iOS device
+3. Choose device from the dropdown menu
+4. Click Build (you might be asked for your devices password)
+
+#### Run with an iOS simulator
+1. Choose a simulator from the dropdown menu
+2. Click Build
+   
 ## Gameplay
 
 #### The board
