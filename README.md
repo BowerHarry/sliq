@@ -3,10 +3,19 @@
 SLIQ is a great new puzzle game being developed for iOS, with a view for future multi-platform releases.</br></br>
 The plan is for SLIQ to be published to the App Store in 2024. Both the code, and the Xcode project will remain available online. Any questions or collaborations are welcome.</br> 
 
-[Toolcahin Build (Kivy)](README.md#toolchain-build-kivy)
+## Table of Contents
+- [Toolcahin Build (Kivy)](README.md#toolchain-build-kivy)
+- [Xcode Build/Deployment](README.md#xcode-build-deployment)
+- [Gameplay](README.md#gameplay)
+     - [The Board](README.md#the-board)
+     - [Scoring Points](README.md#scoring-points)
+     - [Rotating the Board](README.md#rotating-the-board)
+     - [Winning a Level](README.md#winning-a-level)
+- [Known Bugs](README.md#known-bugs)
+- [License](README.md#license)
 
 ## Toolchain Build (Kivy)
-This section contains instructions to build the Python project into an Xcode project (presumably after making some changes). If you wish to deploy the latest Xcode build to your device - skip to the Xcode Build/Deployment section.</br></br>
+This section contains instructions to build the Python project into an Xcode project (presumably after making some changes). If you wish to deploy the latest Xcode build to your device - skip to the [Xcode Build/Deployment section](README.md#xcode-build-deployment).</br></br>
 SLIQ is developed in Python, mostly using the Kivy library. Kivy has the potential to be great because (with care) the same code can theoretically be deployed to iOS, WatchOS, MacOS, Windows, Linux, Android etc. However, in practice, this can sometimes be very tough and building the code can be particularly temperamental. Below are some steps which have worked for me. Any advice in this particular area is very welcome, I have spent a very long time fighting with Toolchain builds.
 
 Clone the repository:
@@ -100,7 +109,7 @@ Create the Xcode project:
 toolchain create sliq <sliq_filepath_main.py>
 ```
 
-This will build an iOS Xcode project. See Xcode Build/Deployment section.
+This will build an iOS Xcode project. See [Xcode Build/Deployment section](README.md#xcode-build-deployment).
 
 ## Xcode Build/ Deployment
 This section contains instructions on how to build the Xcode project and deploy it to your device. Apple Developer Program membership not required.</br></br>
@@ -127,14 +136,17 @@ xed .
 2. Click Build
    
 ## Gameplay
-
-#### The board
+This section will provide instructions on how to play SLIQ. SLIQ is still being developed so this is subject to change.</br></br>
+Every SLIQ level has a target score - level difficulty is established by the target score and game-speed. Perfecting a level with earn 3 severed bear-heads. Perform well in these levels to earn more severed heads to unlock more levels!</br></br>
+Freeplay offers the player the chance to play an endless, casual level and aim for a highscore! 
+### The Board
+This is the game board. There are two key components: Tiles, and the Border.
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/board.png" width="400">
 </p>
 
-
 #### Tiles
+Tiles are the building blocks of SLIQ. The number on the tile corresponds to the <b>number of moves</b> that tile can make AND its <b>value</b>.
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/4-tile.png" width="100">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/3-tile.png" width="100">
@@ -143,46 +155,52 @@ xed .
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/0-tile.png" width="100">
 </p>
 
-#### Tiles moving
+#### The border
+The border refers to the colours at the edge of the game board. These colours match the colours on the tiles. If a tile matches the colour of the border beneath it it will fall through and you score points equal to the tiles value. This will become much clearer in the next section.
+
+
+### Scoring Points
+Points are scored by moving tiles so that their colour matches the border colour. When this happens the tile will fall through and you score points! Lets look at how to move tiles:
+#### Moving a tile
+You can move a tile by swiping on it, left or right. When you move a tile the number on it will decrease by 1. If a tile reaches a value of 0 it cannot be moved and will remain there for the rest of the level (you will want to avoid this where possible).
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/tile-moving.gif" width="400">
 </p>
 
-#### Scoring points
-+3 POINTS
+#### Gaining points
+In this example we have a 4-tile. No points are being scored because the colour of the tile does not match the border beneath it. When we move the tile to the right, it changes to a 3-tile as we have used one of its movement points. This now matches the colour of the border beneath and it falls through, scoring 3 POINTS!
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/scoring-points.gif" width="200">
 </p>
-
-+2 POINTS
+In this example we have a 2-tile. No points are being scored because the colour of the tile does not match the border beneath it. However, the border edge on the right of the tile is the same colour. We can move the tile right into the border and score 2 POINTS!
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/score-points-edge.gif" width="100">
 </p>
 
-
-#### Board rotating
+### Rotating the Board
+When we press the lever attached to the border, the whole border rotates clockwise and new tiles drop down from the ceiling!</br></br> You'll soon learn that looking 1 or 2 board rotations into the future is necessary to survive harder levels. </br></br>Also, the board will rotate automatically if no move has been played for a given period of time. The frequency of this auto-rotation is level dependant and massively impacts difficulty.
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/board-rotate-readme.gif" width="400">
 </p>
+Watch the board rotate one more time. When tiles pass through the top-left-most corner they are regenerated to a new colour.
 
-
-#### Feed the hungry bear!
-
+### Winning a Level
+Whilst playing SLIQ the aim of the game is to feed the bear tiles. He's oh so hungry and boy does he not know when he is full. Make sure to feed the bear enough tiles before the clock hits 0. The level ends when the timer hits 0 or your board gets so full that tiles are touching the ceiling when the borde rotates. If you've done well you will be in for a treat, and more severed bear heads for you.
+#### Feeding the bear
+When tiles drop through the game border they end up on the happy bear's plate. Make sure to feed him more, he's hungry.
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/feeding-bear.gif" width="400">
 </p>
 
-#### Winning a level
-
+#### End of the level
+Each level will have a target score. If you reach this score when the level ends you will earn 3 bear heads!
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/filled-head.png" width="50">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/filled-head.png" width="50">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/filled-head.png" width="50">
 </p>
-<p align="left">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/body.png" width="100">
-</p>
 
+If the bear is left hungry you will earn fewer heads.
 <p align="left">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/filled-head.png" width="50">
   <img src="https://github.com/BowerHarry/sliq/blob/main/README/filled-head.png" width="50">
@@ -190,7 +208,8 @@ xed .
 </p>
 
 ## Known Bugs
-
+- New tiles overloading the board when full (resolution identified)
+- Moving a tile into another tile causes weird behaviour <0.2s before it's animation was due to finish (potential resolution identified)
 ## License
-
+This project is provided under the MIT License. See LICENSE.txt.
 
