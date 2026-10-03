@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Local high score written by the game
+leaderboard.json
+
+# macOS / Xcode
+.DS_Store
+xcuserdata/
+*.xcuserstate
+*.backup

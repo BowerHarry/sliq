@@ -1,215 +1,173 @@
-# <img src="https://github.com/BowerHarry/sliq/blob/main/README/icon.png" width="200">
-<b>! Currently in development !</b></br></br>
-SLIQ is a great new puzzle game being developed for iOS, with a view for future multi-platform releases.</br></br>
-The plan is for SLIQ to be published to the App Store in 2024. Both the code, and the Xcode project will remain available online. Any questions or collaborations are welcome.</br> 
+<p align="center">
+  <img src="docs/images/logo.png" width="360" alt="SLIQ logo">
+</p>
 
-## Table of Contents
-- [Toolcahin Build (Kivy)](README.md#toolchain-build-kivy)
-- [Xcode Build/Deployment](README.md#xcode-build-deployment)
-- [Gameplay](README.md#gameplay)
-     - [The Board](README.md#the-board)
-     - [Scoring Points](README.md#scoring-points)
-     - [Rotating the Board](README.md#rotating-the-board)
-     - [Winning a Level](README.md#winning-a-level)
-- [Known Bugs](README.md#known-bugs)
-- [License](README.md#license)
+# SLIQ (Kivy prototype)
 
-## Toolchain Build (Kivy)
-This section contains instructions to build the Python project into an Xcode project (presumably after making some changes). If you wish to deploy the latest Xcode build to your device - skip to the [Xcode Build/Deployment section](README.md#xcode-build-deployment).</br></br>
-SLIQ is developed in Python, mostly using the Kivy library. Kivy has the potential to be great because (with care) the same code can theoretically be deployed to iOS, WatchOS, MacOS, Windows, Linux, Android etc. However, in practice, this can sometimes be very tough and building the code can be particularly temperamental. Below are some steps which have worked for me. Any advice in this particular area is very welcome, I have spent a very long time fighting with Toolchain builds.
+A falling-tile puzzle game for iOS, written in Python with Kivy: slide numbered tiles into a colour-matched border that rotates around the board.
 
-Clone the repository:
-```
+> **Status: archived.** This is the 2024 Python/Kivy prototype, kept for reference. It is unfinished and no longer developed. It grew out of an [earlier Python mockup](https://github.com/BowerHarry/python-game) and has been superseded by a [native Swift rewrite](https://github.com/BowerHarry/sliq-iOS).
+
+<p align="center">
+  <img src="docs/images/gameplay.gif" width="420" alt="SLIQ gameplay: tiles drop through the border, the border rotates, and the bear grows as the score rises">
+</p>
+
+## Why it exists
+
+SLIQ started as a puzzle game I imagined and mocked up in plain Python. This repo was the attempt to turn that into a real iOS game, with a plan to publish it on the App Store in 2024. I chose Kivy because the same Python code can, in theory, be deployed to iOS, Android and desktop; in practice the iOS toolchain builds were temperamental and took a lot of the effort.
+
+## What it does
+
+- An 8×8 board of tiles numbered 1–4. The number is both the tile's point value and how many moves it has left.
+- Swipe a tile left or right. It slides one cell, loses one from its number, and falls under gravity.
+- The board is surrounded by a coloured border. A tile that rests on, or is pushed into, a border segment of its own colour drops through and scores its value.
+- A lever rotates the whole border a quarter turn and drops new tiles from the top. The border also rotates by itself every 20 seconds.
+- Scored tiles travel through the pipes to a bear, which grows as you approach the target score.
+- The round ends with a rating out of three bear heads, and the high score is saved between runs.
+
+## Technical highlights
+
+- **Sequenced animations as generators.** A small `yield_to_sleep` decorator turns a generator into a coroutine driven by Kivy's `Clock`, so multi-step sequences (slide, then fall, then update the grid) read as straight-line code with `yield 0.3` between steps instead of nested callbacks.
+- **A rotating border built from two layers.** The game logic holds the border as a 10×10 grid and rotates it with `list(zip(*grid[::-1]))`. On screen, each of the four edges is drawn twice, and the eight strips slide 800 px at a time so the border appears to travel round the corners. One edge is regenerated with new colours on every rotation.
+- **Retargeting tiles in mid-fall.** A newly dropped tile polls its landing column every 0.05 s. If the stack beneath it changes while it is falling, its animation is cancelled and restarted towards the new resting cell.
+- **One codebase on desktop and iOS.** The same Python runs in a desktop window for development and is packaged for iOS with kivy-ios, with the high score stored in the app's user data directory on device.
+
+**Stack:** Python, [Kivy](https://kivy.org) (including the kv layout language), [kivy-ios](https://github.com/kivy/kivy-ios) and Xcode for the iOS build.
+
+Written by hand, without AI coding tools.
+
+---
+
+## How to play
+
+### The board
+
+Two things matter on screen: the tiles, and the coloured border around the board.
+
+<p align="left">
+  <img src="docs/images/board.png" width="400" alt="The 8×8 game board with its coloured border">
+</p>
+
+### Tiles
+
+Each tile's number is its **value** and the **number of moves** it can still make. Each number has its own colour. A 0-tile cannot be moved and stays where it is for the rest of the round.
+
+<p align="left">
+  <img src="docs/images/4-tile.png" width="90" alt="4 tile">
+  <img src="docs/images/3-tile.png" width="90" alt="3 tile">
+  <img src="docs/images/2-tile.png" width="90" alt="2 tile">
+  <img src="docs/images/1-tile.png" width="90" alt="1 tile">
+  <img src="docs/images/0-tile.png" width="90" alt="0 tile">
+</p>
+
+### Moving a tile
+
+Swipe a tile left or right. Every move takes one off its number, which also changes its colour.
+
+<p align="left">
+  <img src="docs/images/tile-moving.gif" width="600" alt="A tile sliding right and counting down from 4 to 0">
+</p>
+
+### Scoring
+
+A tile scores when its colour matches the border segment it is touching.
+
+Here a 4-tile sits on an orange (2) segment, so nothing happens. Moving it right turns it into a 3-tile above a red (3) segment: it falls through for **3 points**.
+
+<p align="left">
+  <img src="docs/images/scoring-points.gif" width="300" alt="A 4 tile moves right, becomes a 3 and drops through the matching floor segment">
+</p>
+
+Side walls work too. This 2-tile does not match the floor, but the wall to its right is the same colour, so swiping it into the wall scores **2 points**.
+
+<p align="left">
+  <img src="docs/images/score-points-edge.gif" width="140" alt="A 2 tile swiped into a matching side wall">
+</p>
+
+### Rotating the border
+
+Pulling the lever rotates the whole border a quarter turn clockwise and drops new tiles from the top: two, plus more as the round goes on. The edge that passes the top-left corner is given new colours. If you leave the lever alone, the border rotates automatically after 20 seconds.
+
+<p align="left">
+  <img src="docs/images/board-rotate.gif" width="400" alt="The border rotating clockwise and new tiles dropping in">
+</p>
+
+### Feeding the bear
+
+Tiles that drop through the border come out of the pipes and roll along to the bear, which grows as your score approaches the target.
+
+<p align="left">
+  <img src="docs/images/feeding-bear.gif" width="480" alt="Scored tiles travelling along the conveyor to the bear">
+</p>
+
+### Ending a round
+
+The round is checked each time the border rotates. If a tile is sitting in the top row, the round is lost. Otherwise, if the score has reached the target, the round is won. Either way you are rated out of three bear heads: one for reaching 33% of the target, two for 65%, three for 100%.
+
+<p align="left">
+  <img src="docs/images/filled-head.png" width="50" alt="Filled bear head">
+  <img src="docs/images/filled-head.png" width="50" alt="Filled bear head">
+  <img src="docs/images/empty-head.png" width="50" alt="Empty bear head">
+</p>
+
+## Running it
+
+### Requirements
+
+- Python 3 with Kivy. Last checked with Python 3.13 and Kivy 2.3.1 on macOS; it was originally developed on Python 3.12.
+
+### Desktop
+
+```bash
 git clone https://github.com/BowerHarry/sliq.git
-```
-Prerequisites:
-```
-brew install autoconf automake libtool pkg-config
-brew link libtool
-```
-Using a Python virtual environment minimises conflicts with preinstalled libraries.
-```
-pip install virtualenv
-```
-Setup file structure in preferred location:
-```
-mkdir _environments
-mkdir _builds
-cd _environments
-```
-Create a Python virtual environment:
-```
-python3.11 -m venv venv-sliq
-```
-Activate virtual environment:
-```
-source venv-sliq/bin/activate
-```
-Install dependencies (whilst venv is active):
-```
-pip install Cython==3.0.0
-pip install kivy-ios
-toolchain build kivy
-```
-Check the status of the required files:
-```
-toolchain status
-```
-The output should be the same as the output below. If anything is not built, you can manually build it using "toolchain build <library-name>":
-```
-audiostream  - Not built
-click        - Not built
-curly        - Not built
-cymunk       - Not built
-ffmpeg       - Not built
-ffpyplayer   - Not built
-flask        - Not built
-freetype     - Build OK (built at 2024-02-22 16:48:48.310601)
-hostopenssl  - Build OK (built at 2024-02-22 16:40:48.460346)
-hostpython3  - Build OK (built at 2024-02-22 16:43:38.379137)
-ios          - Build OK (built at 2024-02-22 16:46:11.515884)
-itsdangerous - Not built
-jinja2       - Not built
-kivent_core  - Not built
-kivy         - Build OK (built at 2024-02-22 16:48:08.447449)
-kiwisolver   - Not built
-libcurl      - Not built
-libffi       - Build OK (built at 2024-02-22 16:41:33.733359)
-libjpeg      - Build OK (built at 2024-02-22 16:48:59.890444)
-libpng       - Build OK (built at 2024-02-22 16:41:45.708015)
-libzbar      - Not built
-markupsafe   - Not built
-matplotlib   - Not built
-netifaces    - Not built
-numpy        - Not built
-openssl      - Build OK (built at 2024-02-22 16:42:18.091667)
-photolibrary - Not built
-pillow       - Build OK (built at 2024-02-22 16:49:42.167376)
-plyer        - Not built
-py3dns       - Not built
-pycrypto     - Not built
-pykka        - Not built
-pyobjus      - Build OK (built at 2024-02-22 16:46:30.057945)
-python3      - Build OK (built at 2024-02-22 16:57:14.309049)
-pyyaml       - Not built
-sdl2         - Build OK (built at 2024-02-22 16:42:36.785922)
-sdl2_image   - Build OK (built at 2024-02-22 16:43:47.061092)
-sdl2_mixer   - Build OK (built at 2024-02-22 16:43:55.553344)
-sdl2_ttf     - Build OK (built at 2024-02-22 16:44:11.741270)
-werkzeug     - Not built
-zbarlight    - Not built
-```
-Navigate to build folder:
-```
-cd ..
-cd _builds
-```
-Create the Xcode project:
-```
-toolchain create sliq <sliq_filepath_main.py>
+cd sliq
+python3 -m venv venv
+source venv/bin/activate
+pip install kivy
+python main.py
 ```
 
-This will build an iOS Xcode project. See [Xcode Build/Deployment section](README.md#xcode-build-deployment).
+The game starts straight into a round. Drag a tile sideways with the mouse to move it and click the lever to rotate the border. The high score is written to `leaderboard.json` in the working directory.
 
-## Xcode Build/ Deployment
-This section contains instructions on how to build the Xcode project and deploy it to your device. Apple Developer Program membership not required.</br></br>
-Clone the repository:
-```
-git clone https://github.com/BowerHarry/sliq.git
-```
-Change to the build directory:
-```
-cd sliq/sliq01-ios
-```
-Open the Xcode build
-```
-xed .
-```
-#### Install on iOS device
-1. Rename Xcode to Xcode15
-2. Plug in iOS device
-3. Choose device from the dropdown menu
-4. Click Build (you might be asked for your devices password)
+Expect the window to be the wrong size: see [Known limitations](#known-limitations).
 
-#### Run with an iOS simulator
-1. Choose a simulator from the dropdown menu
-2. Click Build
-   
-## Gameplay
-This section will provide instructions on how to play SLIQ. SLIQ is still being developed so this is subject to change.</br></br>
-Every SLIQ level has a target score - level difficulty is established by the target score and game-speed. Perfecting a level with earn 3 severed bear-heads. Perform well in these levels to earn more severed heads to unlock more levels!</br></br>
-Freeplay offers the player the chance to play an endless, casual level and aim for a highscore! 
-### The Board
-This is the game board. There are two key components: Tiles, and the Border.
-<p align="left">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/board.png" width="400">
-</p>
+### iOS
 
-#### Tiles
-Tiles are the building blocks of SLIQ. The number on the tile corresponds to the <b>number of moves</b> that tile can make AND its <b>value</b>.
-<p align="left">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/4-tile.png" width="100">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/3-tile.png" width="100">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/2-tile.png" width="100">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/1-tile.png" width="100">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/0-tile.png" width="100">
-</p>
+`sliq01-ios/` is the Xcode project that kivy-ios generated for this game in February 2024. It is a **reference snapshot and will not build from a clone**: it points at a local kivy-ios `dist` folder (Python, SDL2 and Kivy static libraries) through absolute paths that are not part of this repo. To build for iOS you would need to run the [kivy-ios](https://github.com/kivy/kivy-ios) toolchain yourself and create a fresh project from `main.py`.
 
-#### The border
-The border refers to the colours at the edge of the game board. These colours match the colours on the tiles. If a tile matches the colour of the border beneath it it will fall through and you score points equal to the tiles value. This will become much clearer in the next section.
+## Project structure
 
+| Path | What it is |
+|---|---|
+| `main.py` | App entry point. `SliqGameController` starts rounds, loads the high score and handles "Play again". |
+| `game.py` | `SliqGame`: one round. Timers, the conveyor of scored tiles, the bear, win/lose and rating. |
+| `board.py` | `Board` and `BoardTile`: swipe handling, moves, gravity, new tiles and scoring. |
+| `border.py` | `Border` and `BorderEdge`: the border grid, its rotation and edge regeneration. |
+| `sliq.kv` | Kivy layout for every screen element. |
+| `src/` | Game art: tiles, border edges, pipes, lever, bear. Some files here are not used by the code. |
+| `sliq01-ios/` | Generated Xcode project (snapshot, see above). |
+| `docs/images/` | Images used in this README. |
 
-### Scoring Points
-Points are scored by moving tiles so that their colour matches the border colour. When this happens the tile will fall through and you score points! Lets look at how to move tiles:
-#### Moving a tile
-You can move a tile by swiping on it, left or right. When you move a tile the number on it will decrease by 1. If a tile reaches a value of 0 it cannot be moved and will remain there for the rest of the level (you will want to avoid this where possible).
-<p align="left">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/tile-moving.gif" width="400">
-</p>
+## Tests
 
-#### Gaining points
-In this example we have a 4-tile. No points are being scored because the colour of the tile does not match the border beneath it. When we move the tile to the right, it changes to a 3-tile as we have used one of its movement points. This now matches the colour of the border beneath and it falls through, scoring 3 POINTS!
-<p align="left">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/scoring-points.gif" width="200">
-</p>
-In this example we have a 2-tile. No points are being scored because the colour of the tile does not match the border beneath it. However, the border edge on the right of the tile is the same colour. We can move the tile right into the border and score 2 POINTS!
-<p align="left">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/score-points-edge.gif" width="100">
-</p>
+There are none.
 
-### Rotating the Board
-When we press the lever attached to the border, the whole border rotates clockwise and new tiles drop down from the ceiling!</br></br> You'll soon learn that looking 1 or 2 board rotations into the future is necessary to survive harder levels. </br></br>Also, the board will rotate automatically if no move has been played for a given period of time. The frequency of this auto-rotation is level dependant and massively impacts difficulty.
-<p align="left">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/board-rotate-readme.gif" width="400">
-</p>
-Watch the board rotate one more time. When tiles pass through the top-left-most corner they are regenerated to a new colour.
+## Known limitations
 
-### Winning a Level
-Whilst playing SLIQ the aim of the game is to feed the bear tiles. He's oh so hungry and boy does he not know when he is full. Make sure to feed the bear enough tiles before the clock hits 0. The level ends when the timer hits 0 or your board gets so full that tiles are touching the ceiling when the borde rotates. If you've done well you will be in for a treat, and more severed bear heads for you.
-#### Feeding the bear
-When tiles drop through the game border they end up on the happy bear's plate. Make sure to feed him more, he's hungry.
-<p align="left">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/feeding-bear.gif" width="400">
-</p>
+This is a prototype that stopped partway. In particular:
 
-#### End of the level
-Each level will have a target score. If you reach this score when the level ends you will earn 3 bear heads!
-<p align="left">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/filled-head.png" width="50">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/filled-head.png" width="50">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/filled-head.png" width="50">
-</p>
+- **One round, no menus.** There are no levels, level select or freeplay mode. The target score is hardcoded to 10 in `main.py`, so a round can be won after the first rotation.
+- **Fixed-pixel layout.** Positions and sizes in `sliq.kv` are hardcoded pixel values tuned for one window size (roughly 2880×1700 px). Other sizes are not laid out correctly.
+- **Window size on Retina Macs.** `Window.size = Window.size` in `main.py` and `game.py` doubles the window on a HiDPI display, so it can open larger than the screen.
+- **Tiles can overload a full board.** New tiles can be added when a column is already full ([issue 1](https://github.com/BowerHarry/sliq/issues/1)).
+- **Moving into a tile that is still animating.** Moving a tile into another one less than about 0.2 s before its animation finishes gives inconsistent results ([issue 2](https://github.com/BowerHarry/sliq/issues/2)).
+- **Double scoring.** A tile that matches the floor is sometimes scored more than once.
+- **iOS project does not build** without a local kivy-ios toolchain, as described above.
 
-If the bear is left hungry you will earn fewer heads.
-<p align="left">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/filled-head.png" width="50">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/filled-head.png" width="50">
-  <img src="https://github.com/BowerHarry/sliq/blob/main/README/empty-head.png" width="50">
-</p>
+## Credits
 
-## Known Bugs
-- [ ] New tiles overloading the board when full (resolution identified) https://github.com/BowerHarry/sliq/issues/1
-- [ ] Moving a tile into another tile <0.2s before it's animation was due to finish causes weird behaviour (potential resolution identified) https://github.com/BowerHarry/sliq/issues/2
+Built on [Kivy](https://kivy.org) and [kivy-ios](https://github.com/kivy/kivy-ios); the files in `sliq01-ios/` other than the game code come from the kivy-ios project template.
+
 ## License
-This project is provided under the MIT License. See LICENSE.txt.
 
+MIT. See [LICENSE](LICENSE).
