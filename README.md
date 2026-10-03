@@ -6,7 +6,7 @@
 
 A falling-tile puzzle game for iOS, written in Python with Kivy: slide numbered tiles into a colour-matched border that rotates around the board.
 
-> **Status: archived.** This is the 2024 Python/Kivy prototype, kept for reference. It is unfinished and no longer developed. It grew out of an [earlier Python mockup](https://github.com/BowerHarry/python-game) and has been superseded by a [native Swift rewrite](https://github.com/BowerHarry/sliq-iOS).
+> **Status: archived.** This is the 2024 Python/Kivy prototype, kept for reference. It is unfinished and no longer developed. It grew out of an [earlier Python mockup](https://github.com/BowerHarry/python-game) and has been superseded by a [native Swift rewrite](https://github.com/BowerHarry/docs-hub/blob/main/sliq/README.md).
 
 <p align="center">
   <img src="docs/images/gameplay.gif" width="420" alt="SLIQ gameplay: tiles drop through the border, the border rotates, and the bear grows as the score rises">
